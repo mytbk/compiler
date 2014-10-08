@@ -220,11 +220,11 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(VarDeclaration n, MType argu) {
       MType _ret=null;
-      MClass m_class = (MClass)argu;
+      MLocalVarType m_class = (MLocalVarType)argu; // m_class可能是类或方法
       String var_name = n.f1.accept(this, argu).getName();
       String type_name = n.f0.accept(this, argu).getName();
       // debug
-      System.out.println("Variable: \'" + var_name + "\' from class " + m_class.getName());
+      System.out.println("Variable: \'" + var_name + "\' from class/method " + m_class.getName());
       System.out.println("It has type: " + type_name);
       
       // 建立并插入变量
@@ -256,14 +256,23 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(MethodDeclaration n, MType argu) {
 	   MType _ret = null;
-      n.f0.accept(this, argu);
-      n.f1.accept(this, argu);
-      n.f2.accept(this, argu);
-      n.f3.accept(this, argu);
-      n.f4.accept(this, argu);
-      n.f5.accept(this, argu);
-      n.f6.accept(this, argu);
-      n.f7.accept(this, argu);
+	   MClass m_class = (MClass)argu;
+	   String ret_type = n.f1.accept(this, argu).getName();
+	   String method_name = n.f2.accept(this, argu).getName();
+	   MMethod m_method = new MMethod(method_name, n.f2.f0.beginLine, n.f2.f0.beginColumn);
+	   
+	   // 将定义的方法插入类中，如果出错则打印错误信息
+	   String _err = m_class.insertMethod(m_method);
+	   if (_err!=null) {
+		   PrintError.print(n.f2.f0.beginLine, n.f2.f0.beginColumn, _err);
+	   }
+	   
+	   // 处理参数表
+      n.f4.accept(this, m_method);
+      
+      // 函数局部变量处理      
+      n.f7.accept(this, m_method);
+      
       n.f8.accept(this, argu);
       n.f9.accept(this, argu);
       n.f10.accept(this, argu);
