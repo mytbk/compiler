@@ -259,7 +259,7 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
 	   MClass m_class = (MClass)argu;
 	   String ret_type = n.f1.accept(this, argu).getName();
 	   String method_name = n.f2.accept(this, argu).getName();
-	   MMethod m_method = new MMethod(method_name, n.f2.f0.beginLine, n.f2.f0.beginColumn);
+	   MMethod m_method = new MMethod(method_name, ret_type, n.f2.f0.beginLine, n.f2.f0.beginColumn);
 	   
 	   // 将定义的方法插入类中，如果出错则打印错误信息
 	   String _err = m_class.insertMethod(m_method);
@@ -298,8 +298,15 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(FormalParameter n, MType argu) {
       MType _ret=null;
-      n.f0.accept(this, argu);
-      n.f1.accept(this, argu);
+      MMethod m_method = (MMethod)argu;
+      String p_type = n.f0.accept(this, argu).getName();
+      String p_name = n.f1.accept(this, argu).getName();
+      MVariable param = new MVariable(p_name, p_type, n.f1.f0.beginLine, n.f1.f0.beginColumn);
+      // 插入方法的参数表
+      String _err = m_method.addParam(param);
+      if (_err!=null) {
+    	  PrintError.print(n.f1.f0.beginLine, n.f1.f0.beginColumn, _err);
+      }
       return _ret;
    }
 

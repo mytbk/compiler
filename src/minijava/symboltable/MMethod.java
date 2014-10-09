@@ -6,9 +6,10 @@ public class MMethod extends MLocalVarType {
 	MClass method_class;
 	MVarList paramList;
 	
-	public MMethod(String m_name, int m_type, int m_column) {
-		super(m_type, m_column);
+	public MMethod(String m_name, String ret_type, int m_line, int m_column) {
+		super(m_line, m_column);
 		this.name = m_name;
+		this.ret_type_name = ret_type;
 		ret_type_name = null;
 		paramList = new MVarList();
 	}
@@ -22,6 +23,15 @@ public class MMethod extends MLocalVarType {
 			return "Variable double declaration " + "\"" + var_name + "\"";	
 		}
 		vars.insertVar(var);
+		return null;
+	}
+	
+	public String addParam(MVariable var) {
+		String var_name = var.getName();
+		if (paramList.findVar(var_name)!=-1) {
+			return "Parameter variable double declaration: " + var_name;
+		}
+		paramList.insertVar(var);
 		return null;
 	}
 }
