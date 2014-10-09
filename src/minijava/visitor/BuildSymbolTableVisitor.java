@@ -402,12 +402,9 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
    public MType visit(ArrayAssignmentStatement n, MType argu) {
       MStatementList m_list = (MStatementList) argu;
       MStatement s = new MStatement(MStatement.Keyword.ArrAssign);
-      MIdentifier m_id = (MIdentifier) n.f0.accept(this, null);
-      MExpression m_expr1 = (MExpression) n.f2.accept(this, argu);
-      MExpression m_expr2 = (MExpression) n.f5.accept(this, argu);
-      s.s_id = m_id;
-      s.e_first = m_expr1;
-      s.e_second = m_expr2;
+      s.s_id = (MIdentifier) n.f0.accept(this, null);
+      s.e_first = (MExpression) n.f2.accept(this, null);
+      s.e_second = (MExpression) n.f5.accept(this, null);
       if (m_list!=null) { // a statement list
     	  m_list.addStatement(s);
       }
@@ -426,7 +423,7 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
    public MType visit(IfStatement n, MType argu) {
       MStatementList m_list = (MStatementList) argu;
       MStatement s = new MStatement(MStatement.Keyword.If);
-      s.s_id = (MIdentifier) n.f2.accept(this, argu);
+      s.e_first = (MExpression) n.f2.accept(this, null);
       s.s_first = (MStatement) n.f4.accept(this, null);
       s.s_second = (MStatement) n.f6.accept(this, null);
       if (m_list!=null)	{ // a statement list
@@ -445,7 +442,7 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
    public MType visit(WhileStatement n, MType argu) {
 	   MStatementList m_list = (MStatementList)argu;
 	   MStatement s = new MStatement(MStatement.Keyword.While);
-	   s.e_first = (MExpression) n.f2.accept(this, argu);
+	   s.e_first = (MExpression) n.f2.accept(this, null);
 	   s.s_first = (MStatement) n.f4.accept(this, null);
 	   if (m_list!=null) {
 		   m_list.addStatement(s);
@@ -463,7 +460,7 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
    public MType visit(PrintStatement n, MType argu) {
 	   MStatementList m_list = (MStatementList)argu;
 	   MStatement s = new MStatement(MStatement.Keyword.Print);
-	   s.e_first = (MExpression) n.f2.accept(this, argu);
+	   s.e_first = (MExpression) n.f2.accept(this, null);
 	   if (m_list!=null) {
 		   m_list.addStatement(s);
 	   }
