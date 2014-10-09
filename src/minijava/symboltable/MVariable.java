@@ -8,4 +8,9 @@ public class MVariable extends MType {
 		name = v_name;
 		typename = v_type;
 	}
+	
+	public void printVar(int spaces) {
+		String ps = OutputFormat.spaces(spaces);
+		System.err.print(ps + typename + " " + this.name);
+	}
 }

@@ -114,14 +114,15 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
       n.f2.accept(this, argu);
       n.f3.accept(this, argu);
       n.f4.accept(this, argu);
-      n.f5.accept(this, argu);
-      n.f6.accept(this, argu);
-      n.f7.accept(this, argu);
-      n.f8.accept(this, argu);
-      n.f9.accept(this, argu);
-      n.f10.accept(this, argu);
-      // main的参数，待处理
-      n.f11.accept(this, argu);
+      
+      // 往main class中添加main方法
+      MMethod main_method = new MMethod("main", "void", n.f6.beginLine, n.f6.beginColumn);
+      MIdentifier argid = (MIdentifier) n.f11.accept(this, argu);
+      MVariable param = new MVariable(argid.getName(), "String[]", 
+    		  argid.getLine(), argid.getColumn());
+      main_method.addParam(param);
+      m_class.insertMethod(main_method);
+      
       n.f12.accept(this, argu);
       n.f13.accept(this, argu);
       // printStatement
@@ -224,8 +225,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
       String var_name = n.f1.accept(this, argu).getName();
       String type_name = n.f0.accept(this, argu).getName();
       // debug
-      System.out.println("Variable: \'" + var_name + "\' from class/method " + m_class.getName());
-      System.out.println("It has type: " + type_name);
+      // System.out.println("Variable: \'" + var_name + "\' from class/method " + m_class.getName());
+      // System.out.println("It has type: " + type_name);
       
       // 建立并插入变量
       MVariable var = new MVariable(var_name, type_name, n.f1.f0.beginLine, n.f1.f0.beginColumn);

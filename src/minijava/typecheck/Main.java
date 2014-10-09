@@ -20,11 +20,16 @@ public class Main {
 			Node root = MiniJavaParser.Goal();
 
 			// 初始化符号表中最大的类
-			MType my_classes = new MClasses();
+			MClasses my_classes = new MClasses();
 
 			// 遍历抽象语法树，建立符号表，检查是否重复定义
 			root.accept(new BuildSymbolTableVisitor(), my_classes);
-
+			
+			// 输出符号表信息
+			if (args.length>0 && args[0].equals("--debug")){
+				my_classes.printClasses(0);
+			}
+			
 			// 打印错误信息
 			PrintError.printAll();
 		} catch (TokenMgrError e) {

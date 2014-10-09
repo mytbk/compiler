@@ -21,4 +21,8 @@ public class MMethodList extends MType {
 		}
 		return -1;
 	}
+	
+	public int size() {
+		return methods.size();
+	}
 }

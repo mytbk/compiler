@@ -38,5 +38,22 @@ public class MClass extends MLocalVarType {
 		methods.addMethod(method);
 		return null;
 	}
+	
+	// 调试输出: 打印该类的信息
+	public void printClass(int spaces) {
+		String ps = OutputFormat.spaces(spaces);
+		if (this.extend_class_name!=null) {
+			System.err.println(ps + "Class "+this.name+" extends "+this.extend_class_name);
+		} else {
+			System.err.println(ps + "Class "+this.name);
+		}
+		for (int i=0; i<vars.size(); i++) {
+			vars.varlist.elementAt(i).printVar(spaces+2);
+			System.err.println();
+		}
+		for (int i=0; i<methods.size(); i++) {
+			methods.methods.elementAt(i).printMethod(spaces+2);
+		}
+	}
 }
 

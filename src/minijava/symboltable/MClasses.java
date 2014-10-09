@@ -27,5 +27,12 @@ public class MClasses extends MType {
 		}
 		return false;
 	}
+	
+	// 调试输出: 打印所有的类的信息
+	public void printClasses(int spaces) {
+		for (int i=0; i<mj_classes.size(); i++) {
+			mj_classes.elementAt(i).printClass(spaces);
+		}
+	}
 }
 

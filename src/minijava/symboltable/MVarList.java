@@ -21,4 +21,8 @@ public class MVarList extends MType {
 		}
 		return -1;
 	}
+	
+	public int size() {
+		return varlist.size();
+	}
 }
