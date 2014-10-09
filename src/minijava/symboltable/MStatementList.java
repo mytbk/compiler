@@ -23,4 +23,11 @@ public class MStatementList extends MType {
 			s_list.elementAt(i).printStatement(spaces);
 		}
 	}
+
+	public void checkStatements(MMethod m) {
+		for (int i=0; i<s_list.size(); i++) {
+			s_list.elementAt(i).checkStatement(m);
+		}
+	}
+	
 }

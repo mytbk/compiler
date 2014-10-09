@@ -8,6 +8,8 @@ public class MIdentifier extends MType {
 	public static final String arrType = "int[]";
 	public static final String intType = "int";
 	public static final String boolType = "boolean";
+	public static final String voidType = "void";
+	public static final String sArrayType = "String[]";
 	
 	public MIdentifier(String v_name, int v_line, int v_column) {
 		super(v_line, v_column);

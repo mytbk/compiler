@@ -12,7 +12,7 @@ import minijava.syntaxtree.Node;
 import minijava.visitor.BuildSymbolTableVisitor;
 
 public class Main {
-
+	
 	public static void main(String[] args) {
 
 		try {
@@ -29,6 +29,17 @@ public class Main {
 			if (args.length>0 && args[0].equals("--debug")){
 				my_classes.printClasses(0);
 			}
+			
+			// 建立类的继承关系，寻找循环继承
+			my_classes.buildClassRelation();
+			
+			// 检查类型名有效性
+			my_classes.checkAllVars();
+			
+			// 检查方法错误覆盖
+			my_classes.checkAllFuncs();
+			
+			my_classes.checkAllStatements();
 			
 			// 打印错误信息
 			PrintError.printAll();

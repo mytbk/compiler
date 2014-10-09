@@ -110,9 +110,10 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     	  PrintError.print(m_class.getLine(), m_class.getColumn(), error_msg);
      
       // 往main class中添加main方法
-      MMethod main_method = new MMethod("main", "void", n.f6.beginLine, n.f6.beginColumn);
+      MMethod main_method = new MMethod("main", MIdentifier.voidType,
+    		  n.f6.beginLine, n.f6.beginColumn);
       MIdentifier argid = (MIdentifier) n.f11.accept(this, null);
-      MVariable param = new MVariable(argid.getName(), "String[]", 
+      MVariable param = new MVariable(argid.getName(), MIdentifier.sArrayType, 
     		  argid.getLine(), argid.getColumn());
       main_method.addParam(param);
       m_class.insertMethod(main_method);
@@ -247,7 +248,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
 	   MClass m_class = (MClass)argu;
 	   String ret_type = n.f1.accept(this, null).getName();
 	   String method_name = n.f2.accept(this, null).getName();
-	   MMethod m_method = new MMethod(method_name, ret_type, n.f2.f0.beginLine, n.f2.f0.beginColumn);
+	   MMethod m_method = new MMethod(method_name, ret_type, 
+			   n.f2.f0.beginLine, n.f2.f0.beginColumn);
 	   
 	   // 将定义的方法插入类中，如果出错则打印错误信息
 	   String _err = m_class.insertMethod(m_method);
@@ -364,7 +366,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> "}"
     */
    public MType visit(Block n, MType argu) {
-      MStatement s = new MStatement(MStatement.Keyword.Block);
+      MStatement s = new MStatement(n.f0.beginLine, n.f0.beginColumn,
+    		  MStatement.Keyword.Block);
       s.s_list = new MStatementList();
       if (argu!=null) { // should be a statement list
     	  ((MStatementList)argu).addStatement(s);
@@ -381,8 +384,10 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(AssignmentStatement n, MType argu) {
       MStatementList m_list = (MStatementList) argu;
-      MStatement s = new MStatement(MStatement.Keyword.Assign);
-      s.s_id = (MIdentifier) n.f0.accept(this, null);
+      MIdentifier st_id = (MIdentifier) n.f0.accept(this, null);
+      MStatement s = new MStatement(st_id.getLine(), st_id.getColumn(),
+    		  MStatement.Keyword.Assign);
+      s.s_id = st_id;
       s.e_first = (MExpression) n.f2.accept(this, null);
       if (m_list!=null) { // a statement list
     	  m_list.addStatement(s);
@@ -401,8 +406,10 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(ArrayAssignmentStatement n, MType argu) {
       MStatementList m_list = (MStatementList) argu;
-      MStatement s = new MStatement(MStatement.Keyword.ArrAssign);
-      s.s_id = (MIdentifier) n.f0.accept(this, null);
+      MIdentifier st_id = (MIdentifier) n.f0.accept(this, null);
+      MStatement s = new MStatement(st_id.getLine(), st_id.getColumn(),
+    		  MStatement.Keyword.ArrAssign);
+      s.s_id = st_id;
       s.e_first = (MExpression) n.f2.accept(this, null);
       s.e_second = (MExpression) n.f5.accept(this, null);
       if (m_list!=null) { // a statement list
@@ -422,7 +429,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(IfStatement n, MType argu) {
       MStatementList m_list = (MStatementList) argu;
-      MStatement s = new MStatement(MStatement.Keyword.If);
+      MStatement s = new MStatement(n.f0.beginLine, n.f0.beginColumn,
+    		  MStatement.Keyword.If);
       s.e_first = (MExpression) n.f2.accept(this, null);
       s.s_first = (MStatement) n.f4.accept(this, null);
       s.s_second = (MStatement) n.f6.accept(this, null);
@@ -441,7 +449,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(WhileStatement n, MType argu) {
 	   MStatementList m_list = (MStatementList)argu;
-	   MStatement s = new MStatement(MStatement.Keyword.While);
+	   MStatement s = new MStatement(n.f0.beginLine, n.f0.beginColumn,
+			   MStatement.Keyword.While);
 	   s.e_first = (MExpression) n.f2.accept(this, null);
 	   s.s_first = (MStatement) n.f4.accept(this, null);
 	   if (m_list!=null) {
@@ -459,7 +468,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(PrintStatement n, MType argu) {
 	   MStatementList m_list = (MStatementList)argu;
-	   MStatement s = new MStatement(MStatement.Keyword.Print);
+	   MStatement s = new MStatement(n.f0.beginLine, n.f0.beginColumn,
+			   MStatement.Keyword.Print);
 	   s.e_first = (MExpression) n.f2.accept(this, null);
 	   if (m_list!=null) {
 		   m_list.addStatement(s);
@@ -488,7 +498,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(AndExpression n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.And);
+	   MExpression e = new MExpression(n.f1.beginLine, n.f1.beginColumn,
+			   MExpression.Operator.And);
 	   e.first = (MExpression) n.f0.accept(this, null);
 	   e.second = (MExpression) n.f2.accept(this, null);
 	   if (argu!=null) {
@@ -503,7 +514,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(CompareExpression n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.Smaller);
+	   MExpression e = new MExpression(n.f1.beginLine, n.f1.beginColumn,
+			   MExpression.Operator.Smaller);
 	   e.first = (MExpression) n.f0.accept(this, null);
 	   e.second = (MExpression) n.f2.accept(this, null);
 	   if (argu!=null) {
@@ -518,7 +530,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(PlusExpression n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.Plus);
+	   MExpression e = new MExpression(n.f1.beginLine, n.f1.beginColumn,
+			   MExpression.Operator.Plus);
 	   e.first = (MExpression) n.f0.accept(this, null);
 	   e.second = (MExpression) n.f2.accept(this, null);
 	   if (argu!=null) {
@@ -533,7 +546,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(MinusExpression n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.Minus);
+	   MExpression e = new MExpression(n.f1.beginLine, n.f1.beginColumn,
+			   MExpression.Operator.Minus);
 	   e.first = (MExpression) n.f0.accept(this, null);
 	   e.second = (MExpression) n.f2.accept(this, null);
 	   if (argu!=null) {
@@ -548,7 +562,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(TimesExpression n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.Times);
+	   MExpression e = new MExpression(n.f1.beginLine, n.f1.beginColumn,
+			   MExpression.Operator.Times);
 	   e.first = (MExpression) n.f0.accept(this, null);
 	   e.second = (MExpression) n.f2.accept(this, null);
 	   if (argu!=null) {
@@ -564,7 +579,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f3 -> "]"
     */
    public MType visit(ArrayLookup n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.ArrayLookup);
+	   MExpression e = new MExpression(n.f1.beginLine, n.f1.beginColumn,
+			   MExpression.Operator.ArrayLookup);
 	   e.first = (MExpression) n.f0.accept(this, null);
 	   e.second = (MExpression) n.f2.accept(this, null);
 	   if (argu!=null) {
@@ -579,7 +595,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> "length"
     */
    public MType visit(ArrayLength n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.ArrayLen);
+	   MExpression e = new MExpression(n.f1.beginLine, n.f1.beginColumn,
+			   MExpression.Operator.ArrayLen);
 	   e.first = (MExpression) n.f0.accept(this, null);
 	   if (argu!=null) {
 		   ((MExpressionList)argu).add_expr(e);
@@ -596,7 +613,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f5 -> ")"
     */
    public MType visit(MessageSend n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.MsgSend);
+	   MExpression e = new MExpression(n.f1.beginLine, n.f1.beginColumn,
+			   MExpression.Operator.MsgSend);
 	   e.first = (MExpression) n.f0.accept(this, null);
 	   e.e_id = (MIdentifier) n.f2.accept(this, null);
 	   // 将表达式列表的内容添加至e.e_list
@@ -638,7 +656,8 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     *       | BracketExpression()
     */
    public MType visit(PrimaryExpression n, MType argu) {
-	   MExpression e = new MExpression(MExpression.Operator.Primary);
+	   // FIXME: cannot get line and column
+	   MExpression e = new MExpression(0, 0, MExpression.Operator.Primary);
 	   n.f0.accept(this, e.e_exp);
 	   if (argu!=null) { // a expression list
 		   ((MExpressionList)argu).add_expr(e);
