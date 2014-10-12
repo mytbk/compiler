@@ -112,6 +112,7 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
       // 往main class中添加main方法
       MMethod main_method = new MMethod("main", MIdentifier.voidType,
     		  n.f6.beginLine, n.f6.beginColumn);
+      //main_method.ret_type_name = MIdentifier.voidType;
       MIdentifier argid = (MIdentifier) n.f11.accept(this, null);
       MVariable param = new MVariable(argid.getName(), MIdentifier.sArrayType, 
     		  argid.getLine(), argid.getColumn());
@@ -627,10 +628,12 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f1 -> ( ExpressionRest() )*
     */
    public MType visit(ExpressionList n, MType argu) {
-      MType _ret=null;
-      n.f0.accept(this, argu);
-      n.f1.accept(this, argu);
-      return _ret;
+      if (argu!=null) {
+    	  MExpressionList m_elist = (MExpressionList)argu;
+    	  m_elist.add_expr((MExpression)n.f0.accept(this,null));
+    	  n.f1.accept(this, m_elist);
+      }
+      return null;
    }
 
    /**
@@ -638,10 +641,11 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
     * f1 -> Expression()
     */
    public MType visit(ExpressionRest n, MType argu) {
-      MType _ret=null;
-      n.f0.accept(this, argu);
-      n.f1.accept(this, argu);
-      return _ret;
+	   if (argu!=null) {
+		   MExpressionList m_elist = (MExpressionList)argu;
+		   m_elist.add_expr((MExpression)n.f1.accept(this,null));
+	   }
+	   return null;
    }
 
    /**

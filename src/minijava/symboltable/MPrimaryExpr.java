@@ -44,6 +44,10 @@ public class MPrimaryExpr extends MType {
 		case Alloc:
 			return e_id.getName();
 		case ArrayAlloc:
+			if (e_exp.exprType(m)!=MIdentifier.intType) {
+				PrintError.print(getLine(), getColumn(), "wrong type of expression in array alloc");
+				return null;
+			}
 			return MIdentifier.arrType;
 		case Braket:
 			return e_exp.exprType(m);

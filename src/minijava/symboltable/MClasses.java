@@ -46,6 +46,9 @@ public class MClasses extends MType {
 			String ext_name = m_class.extend_class_name;
 			if (ext_name!=null) {
 				m_class.extend_class = findClassByName(ext_name);
+				if (m_class.extend_class==null) {
+					PrintError.print(m_class.line, m_class.column, "Extend class not exist!");
+				}
 			}
 		}
 		int tag = 1; // 扫描循环继承的标记

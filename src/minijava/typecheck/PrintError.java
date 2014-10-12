@@ -17,7 +17,15 @@ public class PrintError {
 	public static void printAll() {
 		int sz = errors.size();
 		for (int i = 0; i < sz; i++) {
-			System.out.println(errors.elementAt(i));
+			System.err.println(errors.elementAt(i));
+		}
+	}
+	
+	public static void outputResult() {
+		if (errors.size()>0) {
+			System.out.println("Type error");
+		} else {
+			System.out.println("Program type checked successfully");
 		}
 	}
 }

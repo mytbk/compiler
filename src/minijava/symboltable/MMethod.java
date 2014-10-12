@@ -4,7 +4,7 @@ import minijava.typecheck.PrintError;
 
 public class MMethod extends MLocalVarType {
 	MVarList params;
-	String ret_type_name;
+	public String ret_type_name;
 	public MClass method_class;
 	MVarList paramList;
 	public MStatementList statements;
@@ -74,9 +74,10 @@ public class MMethod extends MLocalVarType {
 			if (idx!=-1) {
 				// 找到同名方法，检测是否能覆盖
 				if (this.ret_type_name.
-						equals(m_class.methods.methods.elementAt(idx))==false) {
+						equals(m_class.methods.methods.elementAt(idx).ret_type_name)==false) {
 					PrintError.print(line, column, "Method " +
-						this.name + " has type different from the one in its parent class");
+						this.name + " has type different from the one in its parent class "
+						+ m_class.name);
 					return false;
 				}
 			}
@@ -95,15 +96,37 @@ public class MMethod extends MLocalVarType {
 		if (idx!=-1) {
 			return paramList.varlist.elementAt(idx);
 		}
-		idx = method_class.vars.findVar(s);
+		MClass m_class = method_class;
+		idx = m_class.vars.findVar(s);		
+		while (idx==-1 && m_class.extend_class!=null) {
+			// 在父类继续查找
+			m_class = m_class.extend_class;
+			idx = m_class.vars.findVar(s);
+		}
 		if (idx!=-1) {
-			return method_class.vars.varlist.elementAt(idx);
+			return m_class.vars.varlist.elementAt(idx);
 		}
 		return null;
 	}
 	
 	public void checkStatements() {
 		statements.checkStatements(this);
+		// 检查返回类型是否和返回值匹配
+		if (ret_type_name==MIdentifier.voidType && ret_expr==null) {
+			// ok
+		} else if (!ret_type_name.equals(ret_expr.exprType(this))) {
+			MClasses all = this.method_class.all_classes;
+			MClass t1 = all.findClassByName(ret_type_name);
+			MClass t2 = all.findClassByName(ret_expr.exprType(this));
+			if (t1!=null) {
+				while (t2!=null && t2!=t1) {
+					t2 = t2.extend_class;
+				}
+			}
+			if (t1!=t2) {
+				PrintError.print(line, column, "return expression and return type mismatch!");
+			}
+		}
 	}
 	
 	public void printMethod(int spaces) {

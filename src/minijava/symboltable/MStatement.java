@@ -36,13 +36,29 @@ public class MStatement extends MType {
 		case Assign:
 			// id = expr
 			MVariable m_var = m.findVarByName(s_id.name);
+			String expr_type = e_first.exprType(m);
+			//System.err.println(s_id.name + " " + expr_type);
 			if (m_var==null) {
 				PrintError.print(line, column, "variable "+s_id.name+" not exist!");
 				return;
-			} else if (m_var.typename.equals(e_first.exprType(m))) {
+			} else if (m_var.typename.equals(expr_type)) {
 				return;
 			} else {
-				PrintError.print(line, column, "type mismatch in assign statement");
+				MClasses all = m.method_class.all_classes;
+				MClass id_class = all.findClassByName(m_var.typename);
+				MClass expr_class = all.findClassByName(expr_type);
+				if (id_class==null) { // id本身不是类
+					PrintError.print(line, column, "type mismatch in assign statement");
+					return;
+				}
+				while (expr_class!=id_class && expr_class!=null) { // 从expr的类找父类
+					expr_class = expr_class.extend_class;
+				}
+				if (expr_class!=id_class) {
+					PrintError.print(line, column, "type mismatch in assign statement");
+				} else {
+					return;
+				}
 			}
 			break;
 		case Block:
@@ -57,7 +73,7 @@ public class MStatement extends MType {
 			}
 			break;
 		case Print:
-			if (e_first.exprType(m)!=null) {
+			if (e_first.exprType(m)==MIdentifier.intType) {
 				return;
 			} else {
 				PrintError.print(line, column, "Invalid type in print statement");

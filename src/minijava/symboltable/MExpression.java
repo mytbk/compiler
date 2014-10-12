@@ -76,7 +76,15 @@ public class MExpression extends MType {
 				PrintError.print(line, column, "no class found in a message send expression");
 				return null;
 			}
-			int idx = m_class.methods.findMethod(e_id.name);
+			int idx=-1;
+			while (m_class!=null) {
+				idx = m_class.methods.findMethod(e_id.name);
+				if (idx==-1) {
+					m_class = m_class.extend_class; // 本类无该方法，从父类继续找
+				} else {
+					break;
+				}
+			}
 			if (idx==-1) {
 				PrintError.print(line, column, "method " + e_id.name + " not found");
 				return null;
@@ -141,6 +149,13 @@ public class MExpression extends MType {
 			System.err.print("]");
 		case ArrayLen:
 		case MsgSend:
+			first.printExpr(0);
+			System.err.print("."+e_id.name+"(");
+			for (int i=0; i<e_list.size(); i++) {
+				if (i>0) System.err.print(",");
+				e_list.e_list.elementAt(i).printExpr(0);
+			}
+			System.err.print(")");
 		}
 	}
 }
