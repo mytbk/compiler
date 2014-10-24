@@ -3,23 +3,36 @@ package minijava.minijava2piglet;
 import minijava.MiniJavaParser;
 import minijava.ParseException;
 import minijava.TokenMgrError;
+import minijava.symboltable.MClasses;
 import minijava.syntaxtree.Node;
+import minijava.typecheck.PrintError;
+import minijava.visitor.BuildSymbolTableVisitor;
 import minijava.visitor.GJDepthFirst;
+import minijava.visitor.GenPigletVisitor;
 
 
 public class Main { 
  
     public static void main(String[] args) {
     	try {
-    		Node root = new MiniJavaParser(System.in).Goal();
+			new MiniJavaParser(System.in);
+			Node root = MiniJavaParser.Goal();
+
+			// 初始化符号表中最大的类
+			MClasses my_classes = new MClasses();
+
+			// 遍历抽象语法树，建立符号表，检查是否重复定义
+			root.accept(new BuildSymbolTableVisitor(), my_classes);
+			
+			// 建立类的继承关系，寻找循环继承
+			my_classes.buildClassRelation();
+			
     		/*
     		 * TODO: Implement your own Visitors and other classes.
     		 * 
     		 */
-    		GJDepthFirst v = new GJDepthFirst<Object,Object>() {
-    		};
-    		//Traverse the Abstract Grammar Tree
-    		root.accept(v,null);
+    		GJDepthFirst v = new GenPigletVisitor();
+    		root.accept(v, my_classes);
     	}
     	catch(TokenMgrError e){
     		//Handle Lexical Errors
