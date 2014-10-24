@@ -10,7 +10,7 @@ import minijava.typecheck.PrintError;
 public class MClasses extends MType {
 	public Vector<MClass> mj_classes = new Vector<MClass>(); // 用于存放类
 
-	MClass findClassByName(String c_name) {
+	public MClass findClassByName(String c_name) {
 		for (int i=0; i<mj_classes.size(); i++) {
 			if (mj_classes.elementAt(i).getName().equals(c_name)) {
 				return mj_classes.elementAt(i);
