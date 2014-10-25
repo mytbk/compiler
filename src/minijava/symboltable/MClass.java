@@ -3,6 +3,8 @@
  */
 package minijava.symboltable;
 
+import minijava.minijava2piglet.PigletBinding;
+import minijava.minijava2piglet.PigletTemp;
 import minijava.typecheck.PrintError;
 
 public class MClass extends MLocalVarType {
@@ -40,6 +42,82 @@ public class MClass extends MLocalVarType {
 		methods.addMethod(method);
 		method.method_class = this;
 		return null;
+	}
+	
+	public MMethod findMethodByName(String m) {
+		int idx = methods.findMethod(m);
+		if (idx==-1) {
+			return null;
+		} else {
+			return methods.methods.elementAt(idx);
+		}
+	}
+	
+	public PigletBinding getVarBinding(String v_name) {
+		int prev_vars = 0;
+		for (MClass c=extend_class; c!=null; c=c.extend_class) {
+			prev_vars += c.vars.size();
+		}
+		int idx = vars.findVar(v_name);
+		if (idx!=-1) {
+			String tmp = PigletTemp.newTmp();
+			PigletBinding ret = new PigletBinding(null, null);
+			ret.read = "\nBEGIN\nHLOAD " + tmp + " TEMP 0 " + (prev_vars+idx+1)*4
+					+ "\nRETURN " + tmp + "\nEND";
+			ret.write = "TEMP 0 " + (prev_vars+idx+1)*4;
+			return ret;
+		}
+		// no such variable, find the parentclss
+		if (extend_class!=null) {
+			return extend_class.getVarBinding(v_name);
+		} else {
+			return null;
+		}
+	}
+	
+	public int getMethodBinding(String m_name) {
+		int prev_funcs = 0;
+		for (MClass c=extend_class; c!=null; c=c.extend_class) {
+			prev_funcs += c.methods.size();
+		}
+		int idx = methods.findMethod(m_name);
+		if (idx!=-1) {
+			return (prev_funcs+idx)*4;
+		} else {
+			// no such function, find the parentclass
+			if (extend_class!=null) {
+				return extend_class.getMethodBinding(m_name);
+			} else {
+				return -1;
+			}
+		}
+	}
+	
+	public String newString() {
+		int nMethods = 0, nVars = 0;
+		String result = "";
+		String t_methods = PigletTemp.newTmp();
+		String t_vars = PigletTemp.newTmp();
+		
+		for (MClass c=this; c!=null; c=c.extend_class) {
+			nMethods += c.methods.size();
+			nVars += c.vars.size();
+		}
+		result += "\nBEGIN\nMOVE " + t_methods + " HALLOCATE " + nMethods*4
+				+ "\nMOVE " + t_vars + " HALLOCATE " + (nVars+1)*4 + "\n";
+		// store all methods
+		for (MClass c=this; c!=null; c=c.extend_class) {
+			for (int i=c.methods.size()-1; i>=0; i--) {
+				--nMethods;
+				result += "HSTORE " + t_methods + " " + nMethods*4 + " "
+						+ c.getName() + "_" 
+						+ c.methods.methods.elementAt(i).getName()
+						+ "\n";
+			}
+		}
+		result += "HSTORE " + t_vars + " 0 " + t_methods + "\n";
+		result += "RETURN " + t_vars + "\nEND";
+		return result;
 	}
 	
 	// 检测类型名是否有效

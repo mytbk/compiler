@@ -1,14 +1,20 @@
 package minijava.symboltable;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import minijava.minijava2piglet.PigletBinding;
+import minijava.minijava2piglet.PigletTemp;
 import minijava.typecheck.PrintError;
 
 public class MMethod extends MLocalVarType {
 	MVarList params;
 	public String ret_type_name;
 	public MClass method_class;
-	MVarList paramList;
+	public MVarList paramList;
 	public MStatementList statements;
 	public MExpression ret_expr;
+	public HashMap<String, String> varBinding;
 	
 	public MMethod(String m_name, String ret_type, int m_line, int m_column) {
 		super(m_line, m_column);
@@ -107,6 +113,44 @@ public class MMethod extends MLocalVarType {
 			return m_class.vars.varlist.elementAt(idx);
 		}
 		return null;
+	}
+	
+	// generate local variable bindings, call it when visitor visits the method
+	public void genLocalVarBindings() {
+		varBinding = new HashMap<String, String>();
+		for (int i=0; i<vars.size(); i++) {
+			varBinding.put(vars.varlist.elementAt(i).getName(), PigletTemp.newTmp());
+		}
+	}
+	
+	// get a binding, call it when visitor visits a statement
+	public PigletBinding getBinding(String id) {
+		String result;
+		result = varBinding.get(id);
+		if (result!=null) {
+			return new PigletBinding(result, null);
+		}
+		// not in local variables, then find paramlist
+		for (int i=0; i<paramList.size(); i++) {
+			if (paramList.varlist.elementAt(i).name.equals(id)) {
+				if (i<18 || paramList.size()<20) {
+					result = "TEMP "+(i+1);
+					return new PigletBinding(result, null);
+				} else {
+					// >=20 parameters, the last parameter should be a pointer to 
+					// the rest parameters
+					int restidx = i-18;
+					String tmp = PigletTemp.newTmp();
+					PigletBinding ret = new PigletBinding(null, null);
+					ret.read = "BEGIN\nHLOAD " + tmp + 
+							" TEMP 19 " + restidx + "RETURN " + tmp + "\nEND";
+					ret.write = "TEMP 19 " + restidx;
+					return ret;
+				}
+			}
+		}
+		// not in paramList either, check for the class
+		return method_class.getVarBinding(id);
 	}
 	
 	public void checkStatements() {
