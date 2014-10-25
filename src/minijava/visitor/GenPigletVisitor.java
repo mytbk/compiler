@@ -94,8 +94,9 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f16 -> "}"
     */
    public MType visit(MainClass n, MType argu) {
+	   MClasses all_classes = (MClasses)argu;
 	   	System.out.println("MAIN");
-	   	n.f14.accept(this, argu);
+	   	n.f14.accept(this, all_classes.main_class.findMethodByName("main"));
 	   	System.out.println("\nEND\n");
 	   	return null;
    }
@@ -147,7 +148,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 		MClass the_class = all_classes.findClassByName(class_name);
 		
 		// 处理类方法
-		n.f4.accept(this, the_class);
+		n.f6.accept(this, the_class);
 		return null;
    }
 
@@ -191,7 +192,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
       // 语句处理
       n.f8.accept(this, the_method);
       // 返回表达式
-      System.out.print("RETURN ");      
+      System.out.print("\nRETURN ");      
       n.f10.accept(this, the_method);
       
       System.out.println("\nEND\n");
@@ -294,11 +295,11 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   
 	   if (binding.write==null) {
 		   // Identifier为TEMP，则使用MOVE
-		   System.out.println("MOVE " + binding.read);
+		   System.out.print("\nMOVE " + binding.read + " ");
 		   n.f2.accept(this, argu);
 	   } else {
 		   // Identifier为内存单元，使用HSTORE
-		   System.out.println("HSTORE " + binding.write);
+		   System.out.print("\nHSTORE " + binding.write + " ");
 		   n.f2.accept(this, argu);
 	   }
 	   
@@ -538,7 +539,8 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   n.f4.accept(this, argu);
 	   System.out.println(" ) ");
 	   System.out.println("END");
-	   String ret_type_name = exp_class.findMethodByName(m_name).ret_type_name;
+	   MMethod m = exp_class.r_findMethodByName(m_name);
+	   String ret_type_name = m.ret_type_name;
 	   MClass ret_class = exp_class.all_classes.findClassByName(ret_type_name);
 	   return ret_class;
    }
@@ -658,7 +660,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f3 -> ")"
     */
    public MType visit(AllocationExpression n, MType argu) {
-	   MClasses all_classes = (MClasses)argu;
+	   MClasses all_classes = ((MMethod)argu).method_class.all_classes;
 	   MClass new_class = all_classes.findClassByName(n.f1.accept(this, null).getName());
 	   System.out.println(new_class.newString());
 	   return new_class;
