@@ -108,6 +108,9 @@ public class BuildSymbolTableVisitor extends GJDepthFirst<MType, MType> {
       error_msg = ((MClasses) argu).InsertClass(m_class);
       if (error_msg != null)
     	  PrintError.print(m_class.getLine(), m_class.getColumn(), error_msg);
+      
+      // 设置该类为主类
+      ((MClasses)argu).main_class = m_class;
      
       // 往main class中添加main方法
       MMethod main_method = new MMethod("main", MIdentifier.voidType,

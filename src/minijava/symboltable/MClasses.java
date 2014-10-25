@@ -9,6 +9,7 @@ import minijava.typecheck.PrintError;
 
 public class MClasses extends MType {
 	public Vector<MClass> mj_classes = new Vector<MClass>(); // 用于存放类
+	public MClass main_class = null;
 
 	public MClass findClassByName(String c_name) {
 		for (int i=0; i<mj_classes.size(); i++) {
