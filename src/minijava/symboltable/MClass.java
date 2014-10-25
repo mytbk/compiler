@@ -53,6 +53,19 @@ public class MClass extends MLocalVarType {
 		}
 	}
 	
+	public MMethod r_findMethodByName(String m) {
+		MClass c = this;
+		while (c!=null) {
+			MMethod method = c.findMethodByName(m);
+			if (method==null) {
+				c = c.extend_class;
+			} else {
+				return method;
+			}
+		}
+		return null;
+	}
+	
 	public PigletBinding getVarBinding(String v_name) {
 		int prev_vars = 0;
 		for (MClass c=extend_class; c!=null; c=c.extend_class) {
