@@ -183,6 +183,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   MMethod the_method = m_class.findMethodByName(method_name);
 	   int nParams = the_method.paramList.size();
 	   
+	   // TODO: 考虑参数个数大于19的情形
 	   System.out.println(m_class.getName() + "_" + method_name + " [ " + (nParams+1) +" ] ");
 	   System.out.println("BEGIN");
 	   
@@ -322,9 +323,9 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   // load t_base
 	   String identifier = n.f0.accept(this, null).getName();
 	   PigletBinding binding = m_method.getBinding(identifier);
-	   System.out.println("\nMOVE " + t_base + binding.read);
+	   System.out.println("\nMOVE " + t_base + " " + binding.read);
 	   // load index
-	   System.out.print("\nMOVE " + t_idx);
+	   System.out.print("\nMOVE " + t_idx + " ");
 	   n.f2.accept(this, argu);
 	   // calculate address 
 	   System.out.print("\nMOVE " + t_idx + " TIMES 4 PLUS 1 " + t_idx);
@@ -369,7 +370,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   String lb_end = PigletLabel.newLabel();
 	   System.out.print("\n" + lb_start + " CJUMP ");
 	   n.f2.accept(this, argu);
-	   System.out.print(lb_end);
+	   System.out.println(" " + lb_end);
 	   n.f4.accept(this, argu);
 	   System.out.println("\nJUMP " + lb_start);
 	   System.out.println(lb_end + " NOOP");
@@ -384,7 +385,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f4 -> ";"
     */
    public MType visit(PrintStatement n, MType argu) {
-	   System.out.print("PRINT ");
+	   System.out.print("\nPRINT ");
 	   n.f2.accept(this, argu);
 	   return null;
    }
@@ -485,15 +486,15 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f3 -> "]"
     */
    public MType visit(ArrayLookup n, MType argu) {
-	   System.out.println("BEGIN");
+	   System.out.println("\nBEGIN");
 	   String tmp_arr = PigletTemp.newTmp();
 	   String tmp_idx = PigletTemp.newTmp();
 	   String tmp_ret = PigletTemp.newTmp();
-	   System.out.println("MOVE " + tmp_arr);
+	   System.out.print("MOVE " + tmp_arr + " ");
 	   n.f0.accept(this, argu);
-	   System.out.println("MOVE " + tmp_idx);
+	   System.out.print("\nMOVE " + tmp_idx + " ");
 	   n.f2.accept(this, argu);
-	   System.out.println("MOVE " + tmp_arr + " ADD " + tmp_arr + " TIMES " + tmp_idx + " 4");
+	   System.out.println("\nMOVE " + tmp_arr + " PLUS " + tmp_arr + " TIMES " + tmp_idx + " 4");
 	   System.out.println("HLOAD " + tmp_ret + " " + tmp_arr + " 4");
 	   System.out.println("RETURN " + tmp_ret);
 	   System.out.println("END");
@@ -506,11 +507,11 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> "length"
     */
    public MType visit(ArrayLength n, MType argu) {
-	   System.out.println("BEGIN");
+	   System.out.println("\nBEGIN");
 	   String tmp_arr = PigletTemp.newTmp();
-	   System.out.println("HLOAD " + tmp_arr);
+	   System.out.print("HLOAD " + tmp_arr + " ");
 	   n.f0.accept(this, argu);
-	   System.out.println("RETURN " + tmp_arr);
+	   System.out.println("\nRETURN " + tmp_arr);
 	   System.out.println("END");
 	   return null;
    }
@@ -532,7 +533,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   String m_name = n.f2.accept(this, null).getName();
 	   int m_offs = exp_class.getMethodBinding(m_name);
 	   System.out.println("\nHLOAD " + t_method + " " + t_exp + " 0");
-	   System.out.println("\nHLOAD " + t_method + " " + t_method + " " + m_offs);
+	   System.out.println("HLOAD " + t_method + " " + t_method + " " + m_offs);
 	   System.out.println("RETURN");
 	   System.out.print("CALL " + t_method + " ( " + t_exp + " ");
 	   // arguments in ExpressionList
@@ -642,7 +643,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   String tmp_len = PigletTemp.newTmp();
 	   String tmp_arr = PigletTemp.newTmp();
 	   System.out.println("\nBEGIN");
-	   System.out.println("MOVE " + tmp_len);
+	   System.out.print("MOVE " + tmp_len + " ");
 	   n.f3.accept(this, argu);
 	   // the first element of the array stores the length
 	   // the rest store the elements
