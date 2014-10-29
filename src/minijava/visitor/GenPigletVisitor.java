@@ -552,7 +552,6 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(ExpressionList n, MType argu) {
 	   n.f0.accept(this, argu);
-	   System.out.print(" ");
 	   n.f1.accept(this, argu);
 	   return null;
    }
@@ -562,6 +561,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f1 -> Expression()
     */
    public MType visit(ExpressionRest n, MType argu) {
+	   System.out.print(" ");
 	   n.f1.accept(this, argu);
 	   return null;
    }
