@@ -25,4 +25,8 @@ public class MMethodList extends MType {
 	public int size() {
 		return methods.size();
 	}
+
+	public MMethod At(int i) {
+		return methods.elementAt(i);
+	}
 }

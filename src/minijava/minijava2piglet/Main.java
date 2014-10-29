@@ -27,6 +27,11 @@ public class Main {
 			// 建立类的继承关系，寻找循环继承
 			my_classes.buildClassRelation();
 			
+			// 对每个类，建立其可用方法列表
+			for (int i=0; i<my_classes.mj_classes.size(); i++) {
+				my_classes.mj_classes.elementAt(i).buildMethodRef();
+			}
+			
     		/*
     		 * TODO: Implement your own Visitors and other classes.
     		 * 

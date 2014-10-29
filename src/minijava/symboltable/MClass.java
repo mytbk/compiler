@@ -14,12 +14,14 @@ public class MClass extends MLocalVarType {
 	public MClass extend_class = null; // 所继承的类，在符号表建立完成后才能求得
 	public int extend_tag = 0; // 检测循环继承时用，0表示未检测
 	public MMethodList methods;
+	public MMethodList all_methods; // 该类所有方法，包括其父类，考虑方法覆盖
 
 	public MClass(String v_name, MClasses all, int m_line, int m_column) {
 		super(m_line, m_column);
 		name = v_name;
 		all_classes = all;
 		methods = new MMethodList();
+		all_methods = null;
 	}
 	
 	public String insertVar(MVariable var) {
@@ -42,6 +44,34 @@ public class MClass extends MLocalVarType {
 		methods.addMethod(method);
 		method.method_class = this;
 		return null;
+	}
+	
+	public void buildMethodRef() {
+		if (all_methods!=null) {
+			return;
+		}
+		if (extend_class==null) {
+			all_methods = methods;
+			return;
+		}
+		// now build the all_methods list
+		if (extend_class.all_methods==null) {
+			extend_class.buildMethodRef();
+		}
+		all_methods = new MMethodList();
+		// first copy the list from parent class
+		for (int i=0; i<extend_class.all_methods.size(); i++) {
+			all_methods.methods.addElement(extend_class.all_methods.At(i));
+		}
+		// then insert my methods
+		for (int i=0; i<methods.size(); i++) {
+			int idx = all_methods.findMethod(methods.At(i).name);
+			if (idx!=-1) {
+				all_methods.methods.setElementAt(methods.At(i), idx);
+			} else {
+				all_methods.methods.addElement(methods.At(i));
+			}
+		}
 	}
 	
 	public MMethod findMethodByName(String m) {
@@ -89,20 +119,12 @@ public class MClass extends MLocalVarType {
 	}
 	
 	public int getMethodBinding(String m_name) {
-		int prev_funcs = 0;
-		for (MClass c=extend_class; c!=null; c=c.extend_class) {
-			prev_funcs += c.methods.size();
-		}
-		int idx = methods.findMethod(m_name);
+		// return the offset of a method with m_name as name
+		int idx = all_methods.findMethod(m_name);
 		if (idx!=-1) {
-			return (prev_funcs+idx)*4;
+			return idx*4;
 		} else {
-			// no such function, find the parentclass
-			if (extend_class!=null) {
-				return extend_class.getMethodBinding(m_name);
-			} else {
-				return -1;
-			}
+			return -1;
 		}
 	}
 	
@@ -113,12 +135,21 @@ public class MClass extends MLocalVarType {
 		String t_vars = PigletTemp.newTmp();
 		
 		for (MClass c=this; c!=null; c=c.extend_class) {
-			nMethods += c.methods.size();
 			nVars += c.vars.size();
 		}
+		nMethods = all_methods.size();
+		
 		result += "\nBEGIN\nMOVE " + t_methods + " HALLOCATE " + nMethods*4
 				+ "\nMOVE " + t_vars + " HALLOCATE " + (nVars+1)*4 + "\n";
 		// store all methods
+		for (int i=0; i<nMethods; i++) {
+			MMethod m_method = all_methods.At(i);
+			result += "HSTORE " + t_methods + " " + i*4 + " "
+					+ m_method.method_class.getName() + "_"
+					+ m_method.getName()
+					+ "\n";
+		}
+		/*
 		for (MClass c=this; c!=null; c=c.extend_class) {
 			for (int i=c.methods.size()-1; i>=0; i--) {
 				--nMethods;
@@ -127,7 +158,7 @@ public class MClass extends MLocalVarType {
 						+ c.methods.methods.elementAt(i).getName()
 						+ "\n";
 			}
-		}
+		}*/
 		result += "HSTORE " + t_vars + " 0 " + t_methods + "\n";
 		result += "RETURN " + t_vars + "\nEND";
 		return result;
