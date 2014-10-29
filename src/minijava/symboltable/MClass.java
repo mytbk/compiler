@@ -159,6 +159,10 @@ public class MClass extends MLocalVarType {
 						+ "\n";
 			}
 		}*/
+		// initiate all variables to 0
+		for (int i=1; i<=nVars; i++) {
+			result += "HSTORE " + t_vars + " " + i*4 + " 0\n";
+		}
 		result += "HSTORE " + t_vars + " 0 " + t_methods + "\n";
 		result += "RETURN " + t_vars + "\nEND";
 		return result;
