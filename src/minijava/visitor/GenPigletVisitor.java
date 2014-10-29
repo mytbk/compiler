@@ -13,6 +13,10 @@ import minijava.syntaxtree.*;
 import minijava.typecheck.PrintError;
 
 public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
+	
+	int nParams;
+	int usedParams;
+	String tmp;
    //
    // Auto class visitors--probably don't need to be overridden.
    //
@@ -183,8 +187,8 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   MMethod the_method = m_class.findMethodByName(method_name);
 	   int nParams = the_method.paramList.size();
 	   
-	   // TODO: 考虑参数个数大于19的情形
-	   System.out.println(m_class.getName() + "_" + method_name + " [ " + (nParams+1) +" ] ");
+	   System.out.println(m_class.getName() + "_" + method_name 
+			   + " [ " + Math.min(20,(nParams+1)) +" ] ");
 	   System.out.println("BEGIN");
 	   
 	   // generate local variable bindings
@@ -532,12 +536,17 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   MClass exp_class = (MClass)(n.f0.accept(this, argu));
 	   String m_name = n.f2.accept(this, null).getName();
 	   int m_offs = exp_class.getMethodBinding(m_name);
+	   nParams = exp_class.r_findMethodByName(m_name).paramList.size();
 	   System.out.println("\nHLOAD " + t_method + " " + t_exp + " 0");
 	   System.out.println("HLOAD " + t_method + " " + t_method + " " + m_offs);
 	   System.out.println("RETURN");
 	   System.out.print("CALL " + t_method + " ( " + t_exp + " ");
 	   // arguments in ExpressionList
 	   n.f4.accept(this, argu);
+	   if (nParams>=20) {
+		   System.out.println("\nRETURN " + tmp);
+		   System.out.println("END");
+	   }
 	   System.out.println(" ) ");
 	   System.out.println("END");
 	   MMethod m = exp_class.r_findMethodByName(m_name);
@@ -552,6 +561,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(ExpressionList n, MType argu) {
 	   n.f0.accept(this, argu);
+	   usedParams = 1;
 	   n.f1.accept(this, argu);
 	   return null;
    }
@@ -561,8 +571,23 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f1 -> Expression()
     */
    public MType visit(ExpressionRest n, MType argu) {
+	   usedParams++;
 	   System.out.print(" ");
-	   n.f1.accept(this, argu);
+	   if (nParams>=20 && usedParams==19) {
+		   // allocate the memory
+		   tmp = PigletTemp.newTmp();
+		   System.out.println("\nBEGIN");
+		   System.out.println("MOVE " + tmp + " HALLOCATE " + (nParams-18)*4);
+		   // store the first param
+		   System.out.print("HSTORE " + tmp + " 0 ");
+		   n.f1.accept(this, argu);
+	   } else if (nParams>=20 && usedParams>=20) {
+		   System.out.print("\nHSTORE " + tmp + " " + (usedParams-19)*4 + " ");
+		   n.f1.accept(this, argu);
+	   } else {
+		   n.f1.accept(this, argu);
+	   }
+	   
 	   return null;
    }
 

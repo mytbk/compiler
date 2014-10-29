@@ -142,9 +142,9 @@ public class MMethod extends MLocalVarType {
 					int restidx = i-18;
 					String tmp = PigletTemp.newTmp();
 					PigletBinding ret = new PigletBinding(null, null);
-					ret.read = "BEGIN\nHLOAD " + tmp + 
-							" TEMP 19 " + restidx + "RETURN " + tmp + "\nEND";
-					ret.write = "TEMP 19 " + restidx;
+					ret.read = "\nBEGIN\nHLOAD " + tmp + 
+							" TEMP 19 " + restidx*4 + "\nRETURN " + tmp + "\nEND";
+					ret.write = "TEMP 19 " + restidx*4;
 					return ret;
 				}
 			}
