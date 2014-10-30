@@ -515,7 +515,8 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   String tmp_arr = PigletTemp.newTmp();
 	   System.out.print("HLOAD " + tmp_arr + " ");
 	   n.f0.accept(this, argu);
-	   System.out.println("\nRETURN " + tmp_arr);
+	   System.out.println(" 0");
+	   System.out.println("RETURN " + tmp_arr);
 	   System.out.println("END");
 	   return null;
    }
@@ -672,7 +673,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   n.f3.accept(this, argu);
 	   // the first element of the array stores the length
 	   // the rest store the elements
-	   System.out.println("MOVE " + tmp_arr + " HALLOCATE TIMES 4 PLUS 1 " + tmp_len);
+	   System.out.println("\nMOVE " + tmp_arr + " HALLOCATE TIMES 4 PLUS 1 " + tmp_len);
 	   System.out.println("HSTORE " + tmp_arr + " 0 " + tmp_len);
 	   System.out.println("RETURN " + tmp_arr);
 	   System.out.println("END");
