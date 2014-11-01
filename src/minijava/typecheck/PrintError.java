@@ -17,7 +17,7 @@ public class PrintError {
 	public static void printAll() {
 		int sz = errors.size();
 		for (int i = 0; i < sz; i++) {
-			System.err.println(errors.elementAt(i));
+			System.out.println(errors.elementAt(i));
 		}
 	}
 	

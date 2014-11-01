@@ -44,7 +44,7 @@ public class Main {
 			// 打印错误信息
 			PrintError.printAll();
 			
-			PrintError.outputResult();
+			// PrintError.outputResult();
 		} catch (TokenMgrError e) {
 
 			// Handle Lexical Errors
