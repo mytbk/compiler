@@ -85,7 +85,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
     * f0 -> ( ( Label() )? Stmt() )*
     */
    public PigletExpr visit(StmtList n, GenSpigletCtl argu) {
-      n.f0.accept(this, argu);
+      n.f0.accept(this, Print);
       return null;
    }
 
@@ -376,6 +376,9 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
     * f0 -> <IDENTIFIER>
     */
    public PigletExpr visit(Label n, GenSpigletCtl argu) {
+	   if (argu.isPrint()) {
+		   System.out.println(n.f0.toString());
+	   }
 	   return new PigletExpr(PigletExpr.Expr_t.Label, n.f0.toString());
    }
 
