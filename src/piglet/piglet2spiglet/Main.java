@@ -6,6 +6,8 @@ import piglet.PigletParser;
 import piglet.TokenMgrError;
 import piglet.syntaxtree.Node;
 import piglet.visitor.GJDepthFirst;
+import piglet.visitor.GenSpigletVisitor;
+import piglet.visitor.ScanTempVisitor;
 
 
 public class Main { 
@@ -17,10 +19,11 @@ public class Main {
     		 * TODO: Implement your own Visitors and other classes.
     		 * 
     		 */
-    		GJDepthFirst v = new GJDepthFirst<Object,Object>() {
-    		};
-    		//Traverse the Abstract Grammar Tree
-    		root.accept(v,null);
+    		ScanTempVisitor vt = new ScanTempVisitor();
+    		root.accept(vt);
+    		GenSpigletVisitor gen = new GenSpigletVisitor();
+    		gen.nTemp = Math.max(vt.maxtmp, 20);
+    		root.accept(gen, null);
     	}
     	catch(TokenMgrError e){
     		//Handle Lexical Errors
