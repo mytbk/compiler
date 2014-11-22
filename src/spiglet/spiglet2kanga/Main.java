@@ -5,6 +5,7 @@ import spiglet.SpigletParser;
 import spiglet.TokenMgrError;
 import spiglet.syntaxtree.Node;
 import spiglet.visitor.GJDepthFirst;
+import spiglet.visitor.GenKangaVisitor;
 
 
 
@@ -18,10 +19,8 @@ public class Main {
     		 * TODO: Implement your own Visitors and other classes.
     		 * 
     		 */
-    		GJDepthFirst v = new GJDepthFirst<Object,Object>() {
-    		};
-    		//Traverse the Abstract Grammar Tree
-    		root.accept(v,null);
+    		SpgGoal goal = new SpgGoal();
+    		root.accept(new GenKangaVisitor(), goal);
     	}
     	catch(TokenMgrError e){
     		//Handle Lexical Errors
