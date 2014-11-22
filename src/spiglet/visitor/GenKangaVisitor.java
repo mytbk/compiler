@@ -34,6 +34,7 @@ import spiglet.syntaxtree.Temp;
 * order.  Your visitors may extend this class.
 */
 public class GenKangaVisitor extends GJDepthFirst<SpgSym, SpgSym> {
+	String lastlb;
 
 	//
 	// User-generated visitor methods below
@@ -92,7 +93,10 @@ public class GenKangaVisitor extends GJDepthFirst<SpgSym, SpgSym> {
 	 *       | PrintStmt()
 	 */
 	public SpgSym visit(Stmt n, SpgSym argu) {
-		n.f0.accept(this, argu);
+		SpgProc p = (SpgProc)argu;
+		n.f0.accept(this, p);
+		p.statements.lastElement().lb = lastlb;
+		lastlb = null;
 		return null;
 	}
 
@@ -219,7 +223,7 @@ public class GenKangaVisitor extends GJDepthFirst<SpgSym, SpgSym> {
 		// argu should be SpgProc
 		SpgProc p = (SpgProc)argu;
 		n.f1.accept(this, p);
-		p.retexp = (SpgSimpExpr)n.f3.accept(this, argu);
+		p.retexp = (SpgSimpExpr)n.f3.accept(this, null);
 		return null;
 	}
 
@@ -315,8 +319,7 @@ public class GenKangaVisitor extends GJDepthFirst<SpgSym, SpgSym> {
 		e.s = n.f0.tokenImage;
 		if (argu!=null) {
 			// should be a procedure
-			SpgProc p = (SpgProc)argu;
-			p.statements.lastElement().lb = e.s;
+			lastlb = e.s;
 		}
 		return e;
 	}
