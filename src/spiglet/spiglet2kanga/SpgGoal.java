@@ -12,4 +12,10 @@ public class SpgGoal extends SpgSym {
 	public void addProc(SpgProc p) {
 		procs.addElement(p);
 	}
+	
+	public void printGoal() {
+		for (int i=0; i<procs.size(); i++) {
+			procs.elementAt(i).printProc();
+		}
+	}
 }

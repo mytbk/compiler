@@ -9,4 +9,8 @@ public class SpgTemp extends SpgSimpExpr {
 	public int tempNum() {
 		return num;
 	}
+	
+	public String toString() {
+		return "TEMP " + num;
+	}
 }

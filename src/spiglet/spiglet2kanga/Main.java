@@ -21,6 +21,8 @@ public class Main {
     		 */
     		SpgGoal goal = new SpgGoal();
     		root.accept(new GenKangaVisitor(), goal);
+    		
+    		goal.printGoal();
     	}
     	catch(TokenMgrError e){
     		//Handle Lexical Errors

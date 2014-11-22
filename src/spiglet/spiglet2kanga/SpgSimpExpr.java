@@ -10,4 +10,18 @@ public class SpgSimpExpr extends SpgExpr {
 		super(SpgExpr.ExpType.Simple);
 		type = t;
 	}
+	
+	public String toString() {
+		switch (type) {
+		case INT:
+			return String.valueOf(num);
+		case LB:
+			return s;
+		case TEMP:
+			return ((SpgTemp)this).toString();
+		default:
+			return null;
+		
+		}
+	}
 }

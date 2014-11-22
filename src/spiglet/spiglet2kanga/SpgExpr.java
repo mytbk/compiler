@@ -24,4 +24,24 @@ public class SpgExpr extends SpgSym {
 		callParams.addElement(t);
 	}
 	
+	public String toString() {
+		String str;
+		switch (type) {
+		case ALLOC:
+			return "ALLOC " + se.toString();
+		case BinOp:
+			return op + " " + oprand.toString() + " " + se.toString();
+		case CALL:
+			str = "CALL " + se.toString();
+			for (int i=0; i<callParams.size(); i++) {
+				str += " " + callParams.elementAt(i).toString();
+			}
+			return str;
+		case Simple:
+			return ((SpgSimpExpr)this).toString();
+		default:
+			return null;
+		
+		}
+	}
 }
