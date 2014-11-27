@@ -1,5 +1,6 @@
 package spiglet.spiglet2kanga;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 public class SpgProc extends SpgSym {
@@ -31,4 +32,40 @@ public class SpgProc extends SpgSym {
 		}
 		System.err.println();
 	}
+	
+	public void setJmpTarget() {
+		// convert all the jump labels to real statement
+		
+		// first scan all the labels
+		HashMap<String, SpgStmt> s = new HashMap<String, SpgStmt>();
+		for (int i=0; i<statements.size(); i++) {
+			SpgStmt stmt = statements.elementAt(i);
+			if (stmt.lb!=null) {
+				s.put(stmt.lb, stmt);
+			}
+		}
+		
+		for (int i=0; i<statements.size(); i++) {
+			SpgStmt stmt = statements.elementAt(i);
+			if (stmt.type==SpgStmt.StmtType.JUMP) {
+				stmt.succ1 = s.get(stmt.jmptarget);
+				stmt.succ2 = null;
+			} else if (stmt.type==SpgStmt.StmtType.CJUMP) {
+				if (i==statements.size()-1) {
+					stmt.succ1 = null;
+				} else {
+					stmt.succ1 = statements.elementAt(i+1);
+				}
+				stmt.succ2 = s.get(stmt.jmptarget);
+			} else {
+				if (i==statements.size()-1) {
+					stmt.succ1 = null;
+				}
+			}
+		}
+	}
+	
+	
+	
+	
 }
