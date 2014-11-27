@@ -1,5 +1,7 @@
 package spiglet.spiglet2kanga;
 
+import java.util.HashSet;
+
 public class SpgTemp extends SpgSimpExpr {
 	public SpgTemp(int n) {
 		super(SpgSimpExpr.SExprType.TEMP);
@@ -14,6 +16,12 @@ public class SpgTemp extends SpgSimpExpr {
 		return "TEMP " + num;
 	}
 
+	public HashSet<SpgTemp> getTmpUsed() {
+		HashSet<SpgTemp> s = new HashSet<SpgTemp>();
+		s.add((SpgTemp)this);
+		return s;
+	}
+	
 	@Override
 	public boolean equals(Object t) {
 		if (t instanceof SpgTemp) {

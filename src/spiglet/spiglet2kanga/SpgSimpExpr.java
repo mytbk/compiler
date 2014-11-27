@@ -29,6 +29,7 @@ public class SpgSimpExpr extends SpgExpr {
 	
 	public HashSet<SpgTemp> getTmpUsed() {
 		if (this instanceof SpgTemp) {
+			System.err.println("Should not go here...");
 			HashSet<SpgTemp> s = new HashSet<SpgTemp>();
 			s.add((SpgTemp)this);
 			return s;
