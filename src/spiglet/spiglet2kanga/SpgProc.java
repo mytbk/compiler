@@ -62,7 +62,10 @@ public class SpgProc extends SpgSym {
 			} else {
 				if (i==statements.size()-1) {
 					stmt.succ1 = null;
+				} else {
+					stmt.succ1 = statements.elementAt(i+1);
 				}
+				stmt.succ2 = null;
 			}
 		}
 	}
@@ -73,5 +76,36 @@ public class SpgProc extends SpgSym {
 		}
 	}
 	
+	public void getActiveVars() {
+		boolean modified = true;
+		
+		// first, initialize the out[] of the last statement
+		if (retexp!=null) {	
+			statements.lastElement().out = retexp.getTmpUsed();
+		}
+		
+		// then, loop in all statements for in[] and out[]
+		while (modified) {
+			modified = false;
+			for (int i=statements.size()-1; i>=0; i--) {
+				SpgStmt st = statements.elementAt(i);
+				// first, reset the out[] set
+				if (st.succ1!=null) {
+					modified |= st.out.addAll(st.succ1.in);
+				}
+				if (st.succ2!=null) {
+					modified |= st.out.addAll(st.succ2.in);
+				}
+				st.in.clear();
+				st.in.addAll(st.out);
+				if (st.def!=null) {
+					st.in.removeAll(st.def);
+				}
+				if (st.use!=null) {
+					st.in.addAll(st.use);
+				}
+			}
+		}
+	}
 	
 }

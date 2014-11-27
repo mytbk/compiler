@@ -14,9 +14,12 @@ public class SpgStmt extends SpgSym{
 	public SpgStmt succ1, succ2;
 	
 	public HashSet<SpgTemp> def, use;
+	public HashSet<SpgTemp> in, out;
 	
 	public SpgStmt(StmtType t) {
 		type = t;
+		in = new HashSet<SpgTemp>();
+		out = new HashSet<SpgTemp>();
 	}
 	
 	public String toString() {

@@ -24,6 +24,7 @@ public class SpgGoal extends SpgSym {
 			SpgProc p = procs.elementAt(i);
 			p.setJmpTarget();
 			p.getDefUse();
+			p.getActiveVars();
 		}
 	}
 }
