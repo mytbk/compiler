@@ -18,4 +18,12 @@ public class SpgGoal extends SpgSym {
 			procs.elementAt(i).printProc();
 		}
 	}
+	
+	public void preProcess() {
+		for (int i=0; i<procs.size(); i++) {
+			SpgProc p = procs.elementAt(i);
+			p.setJmpTarget();
+			p.getDefUse();
+		}
+	}
 }

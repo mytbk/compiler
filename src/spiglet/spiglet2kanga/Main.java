@@ -22,6 +22,7 @@ public class Main {
     		SpgGoal goal = new SpgGoal();
     		root.accept(new GenKangaVisitor(), goal);
     		
+    		goal.preProcess();
     		goal.printGoal();
     	}
     	catch(TokenMgrError e){
