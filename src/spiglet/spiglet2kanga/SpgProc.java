@@ -25,8 +25,8 @@ public class SpgProc extends SpgSym {
 	public void printProc() {
 		System.err.println(name + "[" + argCount + "]");
 		for (int i=0; i<statements.size(); i++) {
+			statements.elementAt(i).printLiveIn();
 			System.err.println(statements.elementAt(i).toString());
-			// statements.elementAt(i).printDefUse();
 		}
 		if (retexp!=null) {
 			System.err.println("RETURN " + retexp.toString());

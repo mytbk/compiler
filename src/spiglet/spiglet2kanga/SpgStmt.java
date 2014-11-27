@@ -105,4 +105,14 @@ public class SpgStmt extends SpgSym{
 		}
 		System.err.println();
 	}
+	
+	public void printLiveIn() {
+		System.err.print("LiveIn: ");
+		SpgTemp[] live = in.toArray(new SpgTemp[0]);
+		for (int i=0; i<live.length; i++) {
+			System.err.print(live[i].num+" ");
+		}
+		System.err.println();
+	}
+	
 }
