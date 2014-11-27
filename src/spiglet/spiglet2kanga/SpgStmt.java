@@ -83,4 +83,23 @@ public class SpgStmt extends SpgSym{
 		
 		}
 	}
+	
+	public void printDefUse() {
+		if (def!=null) {
+			System.err.print("def: ");
+			SpgTemp[] d = def.toArray(new SpgTemp[0]);
+			for (int i=0; i<d.length; i++) {
+				System.err.print(d[i].num+" ");
+			}
+		}
+		System.err.println();
+		if (use!=null) {
+			System.err.print("use: ");
+			SpgTemp[] u = use.toArray(new SpgTemp[0]);
+			for (int i=0; i<u.length; i++) {
+				System.err.print(u[i].num+" ");
+			}
+		}
+		System.err.println();
+	}
 }
