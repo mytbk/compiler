@@ -1,9 +1,17 @@
 package spiglet.spiglet2kanga;
 
+import java.util.HashSet;
 import java.util.Vector;
 
 public class SpgExpr extends SpgSym {
 	public enum ExpType { CALL, ALLOC, BinOp, Simple };
+	
+	/* 
+	 * CALL Simp (Tmp Tmp ...)
+	 * HALLOCATE Simp
+	 * BinOP Tmp Simp
+	 * Simp := Tmp | Int | Label
+	 */
 	
 	public ExpType type;
 	public String op;
@@ -39,6 +47,28 @@ public class SpgExpr extends SpgSym {
 			return str;
 		case Simple:
 			return ((SpgSimpExpr)this).toString();
+		default:
+			return null;
+		
+		}
+	}
+	
+	public HashSet<SpgTemp> getTmpUsed() {
+		HashSet<SpgTemp> s = new HashSet<SpgTemp>();
+		switch (type) {
+		case ALLOC:
+			return se.getTmpUsed();
+		case BinOp:
+			s.add(oprand);
+			s.addAll(se.getTmpUsed());
+			return s;
+		case CALL:
+			s.addAll(se.getTmpUsed());
+			s.addAll(callParams);
+			return s;
+		case Simple:
+			System.err.println("Should not be here...");
+			return ((SpgSimpExpr)this).getTmpUsed();
 		default:
 			return null;
 		

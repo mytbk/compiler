@@ -1,5 +1,7 @@
 package spiglet.spiglet2kanga;
 
+import java.util.HashSet;
+
 public class SpgSimpExpr extends SpgExpr {
 	public enum SExprType { TEMP, INT, LB };
 	SExprType type;
@@ -22,6 +24,16 @@ public class SpgSimpExpr extends SpgExpr {
 		default:
 			return null;
 		
+		}
+	}
+	
+	public HashSet<SpgTemp> getTmpUsed() {
+		if (this instanceof SpgTemp) {
+			HashSet<SpgTemp> s = new HashSet<SpgTemp>();
+			s.add((SpgTemp)this);
+			return s;
+		} else {
+			return null;
 		}
 	}
 }

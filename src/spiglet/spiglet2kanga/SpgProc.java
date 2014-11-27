@@ -45,6 +45,7 @@ public class SpgProc extends SpgSym {
 			}
 		}
 		
+		// then map the labels to statements
 		for (int i=0; i<statements.size(); i++) {
 			SpgStmt stmt = statements.elementAt(i);
 			if (stmt.type==SpgStmt.StmtType.JUMP) {
@@ -65,7 +66,11 @@ public class SpgProc extends SpgSym {
 		}
 	}
 	
-	
+	public void getDefUse() {
+		for (int i=0; i<statements.size(); i++) {
+			statements.elementAt(i).getDefUse();
+		}
+	}
 	
 	
 }
