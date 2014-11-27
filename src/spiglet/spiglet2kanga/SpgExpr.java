@@ -55,15 +55,22 @@ public class SpgExpr extends SpgSym {
 	
 	public HashSet<SpgTemp> getTmpUsed() {
 		HashSet<SpgTemp> s = new HashSet<SpgTemp>();
+		HashSet<SpgTemp> stmp;
 		switch (type) {
 		case ALLOC:
 			return se.getTmpUsed();
 		case BinOp:
 			s.add(oprand);
-			s.addAll(se.getTmpUsed());
+			stmp = se.getTmpUsed();
+			if (stmp!=null) {
+				s.addAll(se.getTmpUsed());
+			}
 			return s;
 		case CALL:
-			s.addAll(se.getTmpUsed());
+			stmp = se.getTmpUsed();
+			if (stmp!=null) {
+				s.addAll(se.getTmpUsed());
+			}
 			s.addAll(callParams);
 			return s;
 		case Simple:
