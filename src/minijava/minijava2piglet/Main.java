@@ -1,21 +1,20 @@
 package minijava.minijava2piglet;
 
+import java.io.InputStream;
+
+import aux.CCPrinter;
 import minijava.MiniJavaParser;
 import minijava.ParseException;
 import minijava.TokenMgrError;
 import minijava.symboltable.MClasses;
 import minijava.syntaxtree.Node;
-import minijava.typecheck.PrintError;
 import minijava.visitor.BuildSymbolTableVisitor;
-import minijava.visitor.GJDepthFirst;
 import minijava.visitor.GenPigletVisitor;
 
-
 public class Main { 
- 
-    public static void main(String[] args) {
-    	try {
-			new MiniJavaParser(System.in);
+	public static CCPrinter execute(InputStream stream) {
+		try {
+			new MiniJavaParser(stream);
 			Node root = MiniJavaParser.Goal();
 
 			// 初始化符号表中最大的类
@@ -36,20 +35,23 @@ public class Main {
     		 * TODO: Implement your own Visitors and other classes.
     		 * 
     		 */
-    		GJDepthFirst v = new GenPigletVisitor();
+    		GenPigletVisitor v = new GenPigletVisitor();
     		root.accept(v, my_classes);
-    	}
-    	catch(TokenMgrError e){
-    		//Handle Lexical Errors
-    		e.printStackTrace();
-    	}
-    	catch (ParseException e){
-    		//Handle Grammar Errors
-    		e.printStackTrace();
-    	}
-    	catch(Exception e){
-    		e.printStackTrace();
-    	}
-    	
-    }
+    		return v.prn;
+		} catch(TokenMgrError e){
+			//Handle Lexical Errors
+			e.printStackTrace();
+		} catch (ParseException e){
+			//Handle Grammar Errors
+			e.printStackTrace();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) {
+		execute(System.in).printAll();
+	}
+    
 }

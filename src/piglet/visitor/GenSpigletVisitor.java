@@ -2,6 +2,7 @@ package piglet.visitor;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import aux.CCPrinter;
 import piglet.piglet2spiglet.GenSpigletCtl;
 import piglet.piglet2spiglet.PigletExpr;
 import piglet.syntaxtree.BinOp;
@@ -42,13 +43,18 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
 	final GenSpigletCtl Default = new GenSpigletCtl(GenSpigletCtl.Control.DEFAULT);
 	final GenSpigletCtl Print = new GenSpigletCtl(GenSpigletCtl.Control.PRINT);
 	final String BinOPs[] = {"LT", "PLUS", "MINUS", "TIMES" };
+	public CCPrinter prn;
+	
+	public GenSpigletVisitor() {
+		prn = new CCPrinter();
+	}
 
 	String expr_to_tmp(PigletExpr e) {
 		if (e.type==PigletExpr.Expr_t.Temp) {
 			return e.toString();
 		} else {
 			nTemp++;
-			System.out.println("MOVE TEMP " + nTemp + " " + e.toString());
+			prn.println("MOVE TEMP " + nTemp + " " + e.toString());
 			return "TEMP " + nTemp;
 		}
 	}
@@ -58,7 +64,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
 			return e.toString();
 		} else {
 			nTemp++;
-			System.out.println("MOVE TEMP " + nTemp + " " + e.toString());
+			prn.println("MOVE TEMP " + nTemp + " " + e.toString());
 			return "TEMP " + nTemp;
 		}
 	}
@@ -74,9 +80,9 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
     * f4 -> <EOF>
     */
    public PigletExpr visit(Goal n, GenSpigletCtl argu) {
-      System.out.println("MAIN");
+      prn.println("MAIN");
       n.f1.accept(this, argu);
-      System.out.println("END");
+      prn.println("END");
       n.f3.accept(this, argu);
       return null;
    }
@@ -99,7 +105,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
    public PigletExpr visit(Procedure n, GenSpigletCtl argu) {
 	   String lb = n.f0.f0.toString();
 	   String numarg = n.f2.f0.toString();
-      System.out.println(lb + " [ " + numarg + " ]");
+      prn.println(lb + " [ " + numarg + " ]");
       n.f4.accept(this, Print);
       return null;
    }
@@ -123,7 +129,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
     * f0 -> "NOOP"
     */
    public PigletExpr visit(NoOpStmt n, GenSpigletCtl argu) {
-	   System.out.println("NOOP");
+	   prn.println("NOOP");
       return null;
    }
 
@@ -131,7 +137,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
     * f0 -> "ERROR"
     */
    public PigletExpr visit(ErrorStmt n, GenSpigletCtl argu) {
-	   System.out.println("ERROR");
+	   prn.println("ERROR");
 	   return null;
    }
 
@@ -148,10 +154,10 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
 		   tmpstr = e.toString();
 	   } else {
 		   nTemp++;
-		   System.out.println("MOVE TEMP " + nTemp + " " + e.toString());
+		   prn.println("MOVE TEMP " + nTemp + " " + e.toString());
 		   tmpstr = "TEMP " + nTemp;
 	   }
-	   System.out.println("CJUMP " + tmpstr + " " + lb);
+	   prn.println("CJUMP " + tmpstr + " " + lb);
       return null;
    }
 
@@ -161,7 +167,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
     */
    public PigletExpr visit(JumpStmt n, GenSpigletCtl argu) {
 	   String lb = n.f1.f0.toString();
-	   System.out.println("JUMP " + lb);
+	   prn.println("JUMP " + lb);
       return null;
    }
 
@@ -178,7 +184,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
 	   String offs = n.f2.f0.toString();
 	   t1 = expr_to_tmp(e1);
 	   t2 = expr_to_tmp(e2);
-	   System.out.println("HSTORE " + t1 + " " + offs + " " + t2);
+	   prn.println("HSTORE " + t1 + " " + offs + " " + t2);
       return null;
    }
 
@@ -194,7 +200,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
 	   String t = n.f1.accept(this, Default).toString();
 	   String i = n.f3.f0.toString();
 	   s = expr_to_tmp(e);
-	   System.out.println("HLOAD " + t + " " + s + " " + i);
+	   prn.println("HLOAD " + t + " " + s + " " + i);
 	   return null;
    }
 
@@ -206,7 +212,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
    public PigletExpr visit(MoveStmt n, GenSpigletCtl argu) {
 	   PigletExpr t = n.f1.accept(this, Default);
 	   PigletExpr e = n.f2.accept(this, Default);
-	   System.out.println("MOVE " + t.toString() + " " + e.toString());
+	   prn.println("MOVE " + t.toString() + " " + e.toString());
 	   return null;
    }
 
@@ -217,7 +223,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
    public PigletExpr visit(PrintStmt n, GenSpigletCtl argu) {
 	   PigletExpr e = n.f1.accept(this, Default);
 	   String s = expr_to_simple(e);
-	   System.out.println("PRINT " + s);
+	   prn.println("PRINT " + s);
 	   return null;
    }
 
@@ -251,14 +257,14 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
 	   /* a normal expression or a function body */
 	   if (argu.isPrint()) {
 		   // a function body
-		   System.out.println("BEGIN");
+		   prn.println("BEGIN");
 		   /* statement list */
 		   n.f1.accept(this, null);
 		   /* return */
 		   PigletExpr e = n.f3.accept(this, Default);
 		   String ret = expr_to_simple(e);
-		   System.out.println("RETURN " + ret);
-		   System.out.println("END");
+		   prn.println("RETURN " + ret);
+		   prn.println("END");
 		   return null;
 	   } else {
 		   // a normal expression, going to turn to a simpler expression
@@ -304,7 +310,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
 	   String s;
 	   if (!e.isSimple()) {
 		   nTemp++;
-		   System.out.println("MOVE TEMP " + nTemp + " " + e.toString());
+		   prn.println("MOVE TEMP " + nTemp + " " + e.toString());
 		   s = "TEMP " + nTemp;
 	   } else {
 		   s = e.toString();
@@ -326,14 +332,14 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
 	   /* the first expr can only be temp */
 	   if (!(t1.type==PigletExpr.Expr_t.Temp)) {
 		   nTemp++;
-		   System.out.println("MOVE TEMP " + nTemp + " " + t1.toString());
+		   prn.println("MOVE TEMP " + nTemp + " " + t1.toString());
 		   s1 = "TEMP " + nTemp;
 	   } else {
 		   s1 = t1.toString();
 	   }
 	   if (!t2.isSimple()) {
 		   nTemp++;
-		   System.out.println("MOVE TEMP " + nTemp + " " + t2.toString());
+		   prn.println("MOVE TEMP " + nTemp + " " + t2.toString());
 		   s2 = "TEMP " + nTemp;
 	   } else {
 		   s2 = t2.toString();
@@ -377,7 +383,7 @@ public class GenSpigletVisitor extends GJDepthFirst<PigletExpr, GenSpigletCtl> {
     */
    public PigletExpr visit(Label n, GenSpigletCtl argu) {
 	   if (argu.isPrint()) {
-		   System.out.println(n.f0.toString());
+		   prn.println(n.f0.toString());
 	   }
 	   return new PigletExpr(PigletExpr.Expr_t.Label, n.f0.toString());
    }

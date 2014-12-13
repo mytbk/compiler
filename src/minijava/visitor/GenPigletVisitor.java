@@ -5,6 +5,7 @@ package minijava.visitor;
 
 import java.util.Enumeration;
 
+import aux.CCPrinter;
 import minijava.minijava2piglet.PigletBinding;
 import minijava.minijava2piglet.PigletLabel;
 import minijava.minijava2piglet.PigletTemp;
@@ -17,6 +18,11 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	int nParams;
 	int usedParams;
 	String tmp;
+	public CCPrinter prn;
+	
+	public GenPigletVisitor() {
+		prn = new CCPrinter();
+	}
    //
    // Auto class visitors--probably don't need to be overridden.
    //
@@ -99,9 +105,9 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(MainClass n, MType argu) {
 	   MClasses all_classes = (MClasses)argu;
-	   	System.out.println("MAIN");
+	   	prn.println("MAIN");
 	   	n.f14.accept(this, all_classes.main_class.findMethodByName("main"));
-	   	System.out.println("\nEND\n");
+	   	prn.println("\nEND\n");
 	   	return null;
    }
 
@@ -187,9 +193,9 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   MMethod the_method = m_class.findMethodByName(method_name);
 	   int nParams = the_method.paramList.size();
 	   
-	   System.out.println(m_class.getName() + "_" + method_name 
+	   prn.println(m_class.getName() + "_" + method_name 
 			   + " [ " + Math.min(20,(nParams+1)) +" ] ");
-	   System.out.println("BEGIN");
+	   prn.println("BEGIN");
 	   
 	   // generate local variable bindings
 	   the_method.genLocalVarBindings();
@@ -197,10 +203,10 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
       // 语句处理
       n.f8.accept(this, the_method);
       // 返回表达式
-      System.out.print("\nRETURN ");      
+      prn.print("\nRETURN ");      
       n.f10.accept(this, the_method);
       
-      System.out.println("\nEND\n");
+      prn.println("\nEND\n");
       return null;
    }
 
@@ -300,11 +306,11 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   
 	   if (binding.write==null) {
 		   // Identifier为TEMP，则使用MOVE
-		   System.out.print("\nMOVE " + binding.read + " ");
+		   prn.print("\nMOVE " + binding.read + " ");
 		   n.f2.accept(this, argu);
 	   } else {
 		   // Identifier为内存单元，使用HSTORE
-		   System.out.print("\nHSTORE " + binding.write + " ");
+		   prn.print("\nHSTORE " + binding.write + " ");
 		   n.f2.accept(this, argu);
 	   }
 	   
@@ -327,14 +333,14 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   // load t_base
 	   String identifier = n.f0.accept(this, null).getName();
 	   PigletBinding binding = m_method.getBinding(identifier);
-	   System.out.println("\nMOVE " + t_base + " " + binding.read);
+	   prn.println("\nMOVE " + t_base + " " + binding.read);
 	   // load index
-	   System.out.print("\nMOVE " + t_idx + " ");
+	   prn.print("\nMOVE " + t_idx + " ");
 	   n.f2.accept(this, argu);
 	   // calculate address 
-	   System.out.print("\nMOVE " + t_idx + " TIMES 4 PLUS 1 " + t_idx);
-	   System.out.print("\nMOVE " + t_base + " PLUS " + t_base + " " + t_idx);
-	   System.out.print("\nHSTORE " + t_base + " 0 ");
+	   prn.print("\nMOVE " + t_idx + " TIMES 4 PLUS 1 " + t_idx);
+	   prn.print("\nMOVE " + t_base + " PLUS " + t_base + " " + t_idx);
+	   prn.print("\nHSTORE " + t_base + " 0 ");
 	   n.f5.accept(this, argu);
 	   return null;
    }
@@ -349,16 +355,16 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f6 -> Statement()
     */
    public MType visit(IfStatement n, MType argu) {
-	   System.out.print("\nCJUMP ");
+	   prn.print("\nCJUMP ");
 	   n.f2.accept(this, argu);
 	   String lb_false = PigletLabel.newLabel();
 	   String lb_end = PigletLabel.newLabel();
-	   System.out.println(" " + lb_false);
+	   prn.println(" " + lb_false);
 	   n.f4.accept(this, argu);
-	   System.out.println("\nJUMP " + lb_end);
-	   System.out.print(lb_false+" ");
+	   prn.println("\nJUMP " + lb_end);
+	   prn.print(lb_false+" ");
 	   n.f6.accept(this, argu);
-	   System.out.println("\n" + lb_end + " NOOP");
+	   prn.println("\n" + lb_end + " NOOP");
 	   return null;
    }
 
@@ -372,12 +378,12 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
    public MType visit(WhileStatement n, MType argu) {
 	   String lb_start = PigletLabel.newLabel();
 	   String lb_end = PigletLabel.newLabel();
-	   System.out.print("\n" + lb_start + " CJUMP ");
+	   prn.print("\n" + lb_start + " CJUMP ");
 	   n.f2.accept(this, argu);
-	   System.out.println(" " + lb_end);
+	   prn.println(" " + lb_end);
 	   n.f4.accept(this, argu);
-	   System.out.println("\nJUMP " + lb_start);
-	   System.out.println(lb_end + " NOOP");
+	   prn.println("\nJUMP " + lb_start);
+	   prn.println(lb_end + " NOOP");
 	   return null;
    }
 
@@ -389,7 +395,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f4 -> ";"
     */
    public MType visit(PrintStatement n, MType argu) {
-	   System.out.print("\nPRINT ");
+	   prn.print("\nPRINT ");
 	   n.f2.accept(this, argu);
 	   return null;
    }
@@ -415,19 +421,19 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(AndExpression n, MType argu) {
-	   System.out.println("\nBEGIN");
+	   prn.println("\nBEGIN");
 	   String tmp1 = PigletTemp.newTmp();
 	   String tmp2 = PigletTemp.newTmp();
 	   String lb = PigletLabel.newLabel();
-	   System.out.println("MOVE " + tmp2 + " 0");
-	   System.out.print("MOVE " + tmp1 + " ");
+	   prn.println("MOVE " + tmp2 + " 0");
+	   prn.print("MOVE " + tmp1 + " ");
 	   n.f0.accept(this, argu);
-	   System.out.println("\nCJUMP " + tmp1 + " " + lb );
-	   System.out.print("MOVE " + tmp2 + " ");
+	   prn.println("\nCJUMP " + tmp1 + " " + lb );
+	   prn.print("MOVE " + tmp2 + " ");
 	   n.f2.accept(this, argu);
-	   System.out.println("\n" + lb + " NOOP");
-	   System.out.println("RETURN " + tmp2);
-	   System.out.println("END");
+	   prn.println("\n" + lb + " NOOP");
+	   prn.println("RETURN " + tmp2);
+	   prn.println("END");
 	   return null;
    }
 
@@ -437,9 +443,9 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(CompareExpression n, MType argu) {
-	   System.out.print("LT ");
+	   prn.print("LT ");
 	   n.f0.accept(this, argu);
-	   System.out.print(" ");
+	   prn.print(" ");
 	   n.f2.accept(this, argu);
 	   return null;
    }
@@ -450,9 +456,9 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(PlusExpression n, MType argu) {
-	   System.out.print("PLUS ");
+	   prn.print("PLUS ");
 	   n.f0.accept(this, argu);
-	   System.out.print(" ");
+	   prn.print(" ");
 	   n.f2.accept(this, argu);
 	   return null;
    }
@@ -463,9 +469,9 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(MinusExpression n, MType argu) {
-	   System.out.print("MINUS ");
+	   prn.print("MINUS ");
 	   n.f0.accept(this, argu);
-	   System.out.print(" ");
+	   prn.print(" ");
 	   n.f2.accept(this, argu);
 	   return null;
    }
@@ -476,9 +482,9 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> PrimaryExpression()
     */
    public MType visit(TimesExpression n, MType argu) {
-	   System.out.print("TIMES ");
+	   prn.print("TIMES ");
 	   n.f0.accept(this, argu);
-	   System.out.print(" ");
+	   prn.print(" ");
 	   n.f2.accept(this, argu);
 	   return null;
    }
@@ -490,18 +496,18 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f3 -> "]"
     */
    public MType visit(ArrayLookup n, MType argu) {
-	   System.out.println("\nBEGIN");
+	   prn.println("\nBEGIN");
 	   String tmp_arr = PigletTemp.newTmp();
 	   String tmp_idx = PigletTemp.newTmp();
 	   String tmp_ret = PigletTemp.newTmp();
-	   System.out.print("MOVE " + tmp_arr + " ");
+	   prn.print("MOVE " + tmp_arr + " ");
 	   n.f0.accept(this, argu);
-	   System.out.print("\nMOVE " + tmp_idx + " ");
+	   prn.print("\nMOVE " + tmp_idx + " ");
 	   n.f2.accept(this, argu);
-	   System.out.println("\nMOVE " + tmp_arr + " PLUS " + tmp_arr + " TIMES " + tmp_idx + " 4");
-	   System.out.println("HLOAD " + tmp_ret + " " + tmp_arr + " 4");
-	   System.out.println("RETURN " + tmp_ret);
-	   System.out.println("END");
+	   prn.println("\nMOVE " + tmp_arr + " PLUS " + tmp_arr + " TIMES " + tmp_idx + " 4");
+	   prn.println("HLOAD " + tmp_ret + " " + tmp_arr + " 4");
+	   prn.println("RETURN " + tmp_ret);
+	   prn.println("END");
 	   return null;
    }
 
@@ -511,13 +517,13 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f2 -> "length"
     */
    public MType visit(ArrayLength n, MType argu) {
-	   System.out.println("\nBEGIN");
+	   prn.println("\nBEGIN");
 	   String tmp_arr = PigletTemp.newTmp();
-	   System.out.print("HLOAD " + tmp_arr + " ");
+	   prn.print("HLOAD " + tmp_arr + " ");
 	   n.f0.accept(this, argu);
-	   System.out.println(" 0");
-	   System.out.println("RETURN " + tmp_arr);
-	   System.out.println("END");
+	   prn.println(" 0");
+	   prn.println("RETURN " + tmp_arr);
+	   prn.println("END");
 	   return null;
    }
 
@@ -530,26 +536,26 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f5 -> ")"
     */
    public MType visit(MessageSend n, MType argu) {
-	   System.out.println("\nBEGIN");
+	   prn.println("\nBEGIN");
 	   String t_exp = PigletTemp.newTmp();
 	   String t_method = PigletTemp.newTmp();
-	   System.out.print("MOVE " + t_exp + " ");
+	   prn.print("MOVE " + t_exp + " ");
 	   MClass exp_class = (MClass)(n.f0.accept(this, argu));
 	   String m_name = n.f2.accept(this, null).getName();
 	   int m_offs = exp_class.getMethodBinding(m_name);
 	   nParams = exp_class.r_findMethodByName(m_name).paramList.size();
-	   System.out.println("\nHLOAD " + t_method + " " + t_exp + " 0");
-	   System.out.println("HLOAD " + t_method + " " + t_method + " " + m_offs);
-	   System.out.println("RETURN");
-	   System.out.print("CALL " + t_method + " ( " + t_exp + " ");
+	   prn.println("\nHLOAD " + t_method + " " + t_exp + " 0");
+	   prn.println("HLOAD " + t_method + " " + t_method + " " + m_offs);
+	   prn.println("RETURN");
+	   prn.print("CALL " + t_method + " ( " + t_exp + " ");
 	   // arguments in ExpressionList
 	   n.f4.accept(this, argu);
 	   if (nParams>=20) {
-		   System.out.println("\nRETURN " + tmp);
-		   System.out.println("END");
+		   prn.println("\nRETURN " + tmp);
+		   prn.println("END");
 	   }
-	   System.out.println(" ) ");
-	   System.out.println("END");
+	   prn.println(" ) ");
+	   prn.println("END");
 	   MMethod m = exp_class.r_findMethodByName(m_name);
 	   String ret_type_name = m.ret_type_name;
 	   MClass ret_class = exp_class.all_classes.findClassByName(ret_type_name);
@@ -573,17 +579,17 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(ExpressionRest n, MType argu) {
 	   usedParams++;
-	   System.out.print(" ");
+	   prn.print(" ");
 	   if (nParams>=20 && usedParams==19) {
 		   // allocate the memory
 		   tmp = PigletTemp.newTmp();
-		   System.out.println("\nBEGIN");
-		   System.out.println("MOVE " + tmp + " HALLOCATE " + (nParams-18)*4);
+		   prn.println("\nBEGIN");
+		   prn.println("MOVE " + tmp + " HALLOCATE " + (nParams-18)*4);
 		   // store the first param
-		   System.out.print("HSTORE " + tmp + " 0 ");
+		   prn.print("HSTORE " + tmp + " 0 ");
 		   n.f1.accept(this, argu);
 	   } else if (nParams>=20 && usedParams>=20) {
-		   System.out.print("\nHSTORE " + tmp + " " + (usedParams-19)*4 + " ");
+		   prn.print("\nHSTORE " + tmp + " " + (usedParams-19)*4 + " ");
 		   n.f1.accept(this, argu);
 	   } else {
 		   n.f1.accept(this, argu);
@@ -612,7 +618,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     */
    public MType visit(IntegerLiteral n, MType argu) {
 	   int val = Integer.parseInt(n.f0.tokenImage);
-	   System.out.print(val+" ");
+	   prn.print(val+" ");
 	   return null;
    }
 
@@ -620,7 +626,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f0 -> "true"
     */
    public MType visit(TrueLiteral n, MType argu) {
-	   System.out.print(1+" ");
+	   prn.print(1+" ");
 	   return null;
    }
 
@@ -628,7 +634,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f0 -> "false"
     */
    public MType visit(FalseLiteral n, MType argu) {
-	   System.out.print(0+" ");
+	   prn.print(0+" ");
 	   return null;
   }
 
@@ -645,7 +651,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     	 // argu is some expression in method, should return a class and print the code
     	 MVariable vv = ((MMethod)argu).findVarByName(identifier_name);
     	 MClass the_class = ((MMethod)argu).method_class.all_classes.findClassByName(vv.typename);
-    	 System.out.print( ((MMethod)argu).getBinding(identifier_name).read );
+    	 prn.print( ((MMethod)argu).getBinding(identifier_name).read );
     	 return the_class;
      }
    }
@@ -654,7 +660,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
     * f0 -> "this"
     */
    public MType visit(ThisExpression n, MType argu) {
-	   System.out.print("TEMP 0 ");
+	   prn.print("TEMP 0 ");
       return ((MMethod)argu).method_class;
    }
 
@@ -668,15 +674,15 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
    public MType visit(ArrayAllocationExpression n, MType argu) {
 	   String tmp_len = PigletTemp.newTmp();
 	   String tmp_arr = PigletTemp.newTmp();
-	   System.out.println("\nBEGIN");
-	   System.out.print("MOVE " + tmp_len + " ");
+	   prn.println("\nBEGIN");
+	   prn.print("MOVE " + tmp_len + " ");
 	   n.f3.accept(this, argu);
 	   // the first element of the array stores the length
 	   // the rest store the elements
-	   System.out.println("\nMOVE " + tmp_arr + " HALLOCATE TIMES 4 PLUS 1 " + tmp_len);
-	   System.out.println("HSTORE " + tmp_arr + " 0 " + tmp_len);
-	   System.out.println("RETURN " + tmp_arr);
-	   System.out.println("END");
+	   prn.println("\nMOVE " + tmp_arr + " HALLOCATE TIMES 4 PLUS 1 " + tmp_len);
+	   prn.println("HSTORE " + tmp_arr + " 0 " + tmp_len);
+	   prn.println("RETURN " + tmp_arr);
+	   prn.println("END");
 	   return null;
    }
 
@@ -689,7 +695,7 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
    public MType visit(AllocationExpression n, MType argu) {
 	   MClasses all_classes = ((MMethod)argu).method_class.all_classes;
 	   MClass new_class = all_classes.findClassByName(n.f1.accept(this, null).getName());
-	   System.out.println(new_class.newString());
+	   prn.println(new_class.newString());
 	   return new_class;
    }
 
@@ -702,15 +708,15 @@ public class GenPigletVisitor extends GJDepthFirst<MType, MType> {
 	   String tmp = PigletTemp.newTmp();
 	   String result = PigletTemp.newTmp();
 	   
-	   System.out.println("\nBEGIN");
-	   System.out.println("MOVE " + result + " 1");
-	   System.out.print("MOVE " + tmp + " ");
+	   prn.println("\nBEGIN");
+	   prn.println("MOVE " + result + " 1");
+	   prn.print("MOVE " + tmp + " ");
 	   n.f1.accept(this, argu);
-	   System.out.println("\nCJUMP LT 0 " + tmp + " " + false_label);
-	   System.out.println("MOVE " + result + " 0");
-	   System.out.println(false_label + " NOOP");
-		System.out.println("RETURN " + result);
-	   System.out.println("END");
+	   prn.println("\nCJUMP LT 0 " + tmp + " " + false_label);
+	   prn.println("MOVE " + result + " 0");
+	   prn.println(false_label + " NOOP");
+		prn.println("RETURN " + result);
+	   prn.println("END");
 	   return null;
    }
 
