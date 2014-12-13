@@ -5,6 +5,7 @@ import kanga.ParseException;
 import kanga.TokenMgrError;
 import kanga.syntaxtree.Node;
 import kanga.visitor.GJDepthFirst;
+import kanga.visitor.GenMIPSVisitor;
 
 public class Main {
 
@@ -14,10 +15,10 @@ public class Main {
 			/*
 			 * TODO: Implement your own Visitors and other classes.
 			 */
-			GJDepthFirst v = new GJDepthFirst<Object, Object>() {
-			};
+			GenMIPSVisitor v = new GenMIPSVisitor();
 			// Traverse the Abstract Grammar Tree
 			root.accept(v, null);
+			v.prn.printAll();
 		} catch (TokenMgrError e) {
 			// Handle Lexical Errors
 			e.printStackTrace();
